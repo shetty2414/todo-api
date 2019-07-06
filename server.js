@@ -32,12 +32,14 @@ app.get('/todos', function (req, res) {
 })
 app.get('/todos/:id', function (req, res) {
   let todoId = parseInt(req.params.id, 10)
-  let matchedTodo
-  _.each(todos, function (todo) {
-    if (todoId === todo.id) {
-      matchedTodo = todo
-    }
-  })
+  let matchedTodo = _.findWhere(todos, { id: todoId })
+
+  // let matchedTodo
+  // _.each(todos, function (todo) {
+  //   if (todoId === todo.id) {
+  //     matchedTodo = todo
+  //   }
+  // })
   if (matchedTodo) {
     res.json(matchedTodo)
   } else {
@@ -46,10 +48,14 @@ app.get('/todos/:id', function (req, res) {
 })
 
 app.post('/todos', function (req, res) {
-  let body = req.body
-  res.json(body)
+  let body = _.pick(req.body, 'description', 'completed')
+  body.description = body.description.trim()
+
+  if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) { return res.status(400).send('Invalid Request') }
+
   body.id = todoNextId++
   todos.push(body)
+  res.json(body)
 })
 
 app.listen(PORT, function () {
