@@ -3,22 +3,6 @@ const _ = require('underscore')
 const bodyParser = require('body-parser')
 const app = express()
 let PORT = process.env.PORT || 3000
-// let todos = [{
-//   id: 1,
-//   description: 'Meet mom for lunch',
-//   completed: false
-// },
-// {
-//   id: 2,
-//   description: 'Go to market',
-//   completed: false
-// },
-// {
-//   id: 3,
-//   description: 'Feed the cat',
-//   completed: false
-// }]
-
 let todos = []
 let todoNextId = 1
 
@@ -34,12 +18,6 @@ app.get('/todos/:id', function (req, res) {
   let todoId = parseInt(req.params.id, 10)
   let matchedTodo = _.findWhere(todos, { id: todoId })
 
-  // let matchedTodo
-  // _.each(todos, function (todo) {
-  //   if (todoId === todo.id) {
-  //     matchedTodo = todo
-  //   }
-  // })
   if (matchedTodo) {
     res.json(matchedTodo)
   } else {
@@ -56,6 +34,17 @@ app.post('/todos', function (req, res) {
   body.id = todoNextId++
   todos.push(body)
   res.json(body)
+})
+
+app.delete('/todos/:id', function (req, res) {
+  let todoId = parseInt(req.params.id, 10)
+  let matchedTodo = _.findWhere(todos, { id: todoId })
+
+  todos = _.without(todos, matchedTodo)
+
+  console.log(matchedTodo)
+
+  res.json(todos)
 })
 
 app.listen(PORT, function () {
