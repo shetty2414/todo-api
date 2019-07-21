@@ -40,11 +40,43 @@ app.delete('/todos/:id', function (req, res) {
   let todoId = parseInt(req.params.id, 10)
   let matchedTodo = _.findWhere(todos, { id: todoId })
 
-  todos = _.without(todos, matchedTodo)
-
+  if (!matchedTodo) {
+    res.status(404).send({ status: 'No records found' })
+  } else {
+    todos = _.without(todos, matchedTodo)
+  }
   console.log(matchedTodo)
 
   res.json(todos)
+})
+
+// PUT /todos/:id
+
+app.put('/todos/:id', function (req, res) {
+  let todoId = parseInt(req.params.id, 10)
+  let matchedTodo = _.findWhere(todos, { id: todoId })
+  let body = _.pick(req.body, 'description', 'completed')
+  let validAttribute = {}
+
+  if (!matchedTodo) {
+    res.status(404).send()
+  }
+
+  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+    validAttribute.completed = body.completed
+  } else if (body.hasOwnProperty('completed')) {
+    return res.status(400).send()
+  }
+
+  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+    validAttribute.description = body.description
+  } else if (body.hasOwnProperty('description')) {
+    return res.status(400).send()
+  }
+
+  _.extend(matchedTodo, validAttribute)
+
+  res.json(matchedTodo)
 })
 
 app.listen(PORT, function () {
